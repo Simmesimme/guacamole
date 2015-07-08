@@ -22,6 +22,7 @@
 @include "common/header.glsl"
 @include "common/gua_camera_uniforms.glsl"
 @include "common/gua_gbuffer_input.glsl"
+@include "common/heat.glsl"
 @include "gbuffer_warp_modes.glsl"
 
 uniform bool warp_left_eye;
@@ -39,7 +40,7 @@ layout(location=0) out vec3 gua_out_color;
 void main() {
   #if @debug_cell_colors@ == 1
     float intensity = log2(cellsize) / 5.0;
-    gua_out_color =  0.8*(vec3(0.5, 0.3, 0.1) * (1-intensity) + vec3(0.6, 0.9, 0.4) * intensity);
+    gua_out_color =  heat(intensity)*0.4+0.2;
   #else
     gua_out_color = gua_get_color(texcoords);
   #endif

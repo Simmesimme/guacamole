@@ -22,13 +22,14 @@
 @include "common/header.glsl"
 @include "common/gua_camera_uniforms.glsl"
 @include "abuffer_warp_modes.glsl"
+@include "common/heat.glsl"
 
 layout(pixel_center_integer) in vec4 gl_FragCoord;
 
 // output
 layout(location=0) out vec3 gua_out_color;
 
-#define MAX_RAY_STEPS 50
+#define MAX_RAY_STEPS 30
 
 #if WARP_MODE == WARP_MODE_RAYCASTING
 
@@ -118,7 +119,7 @@ layout(location=0) out vec3 gua_out_color;
     start = s.xyz * 0.5 + 0.5;
     end   = e.xyz * 0.5 + 0.5;
 
-    if ((start.z < crop_depth.x && end.z < crop_depth.x) || (start.z > crop_depth.y && end.z > crop_depth.y) || 
+    if ((start.z < crop_depth.x && end.z < crop_depth.x) || (start.z > crop_depth.y && end.z > crop_depth.y) ||
         any(lessThan(start.xy, vec2(0))) || any(greaterThan(start.xy, vec2(1))) ) {
       return false;
     }
@@ -143,15 +144,6 @@ layout(location=0) out vec3 gua_out_color;
     color += mix(frag_color, vec4(0.0), color.a);
   }
 
-  vec3 heat(float v) {
-    float value = 1.0-v;
-    return (0.5+0.5*smoothstep(0.0, 0.1, value))*vec3(
-      smoothstep(0.5, 0.3, value),
-      value < 0.3 ? smoothstep(0.0, 0.3, value) : smoothstep(1.0, 0.6, value),
-      smoothstep(0.4, 0.6, value)
-    );
-  }
-
   vec2 get_min_max_depth(ivec2 pos, int level) {
     uvec2 min_max_depth = texelFetch(usampler2D(abuf_min_max_depth), min(pos, textureSize(usampler2D(abuf_min_max_depth), level-1)-1), level-1).xy;
     float min_depth = 1-unpack_depth(min_max_depth.x);
@@ -162,7 +154,7 @@ layout(location=0) out vec3 gua_out_color;
   void draw_debug_views() {
 
     vec2 preview_coords = gua_quad_coords*3-vec2(0.09, 0.12);
-    
+
     // center ray preview
     #if 0
       // draw mini version of depth buffer
@@ -246,7 +238,7 @@ layout(location=0) out vec3 gua_out_color;
               gua_out_color = mix(vec3(0, min_max_depth.x, 0), gua_out_color, 0.7);
             }
           }
-        
+
           if (!intersects || current_level == 0) {
             pos = new_pos;
 
@@ -285,9 +277,9 @@ layout(location=0) out vec3 gua_out_color;
         gua_out_color = vec3(1, 0, 1);
       }
 
-      preview_coords -= vec2(0, 1.1); 
+      preview_coords -= vec2(0, 1.1);
     #endif
-    
+
   }
 
   void main() {
@@ -371,11 +363,11 @@ layout(location=0) out vec3 gua_out_color;
 
       // draw debug hierachy
       if (current_level == 0 && intersects) {
-        abuf_mix_frag(vec4(vec3(1, 0, 0), 1), color);
+        abuf_mix_frag(vec4(vec3(1, 0, 0), 0.5), color);
       }
-      abuf_mix_frag(vec4(heat(1-float(current_level) / max_level), 0.03), color);
+      abuf_mix_frag(vec4(heat(float(current_level) / max_level), 0.05), color);
 
-    
+
       if (!intersects || current_level == 0) {
         pos = new_pos;
 

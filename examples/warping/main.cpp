@@ -27,7 +27,6 @@
 #include <gua/guacamole.hpp>
 #include <gua/renderer/TexturedScreenSpaceQuadPass.hpp>
 #include <gua/renderer/TriMeshLoader.hpp>
-#include <gua/renderer/DebugViewPass.hpp>
 #include <gua/utils/Trackball.hpp>
 #include <gua/gui.hpp>
 
@@ -37,9 +36,9 @@
 #define POWER_WALL      false
 #define OCULUS          false
 
-#define LOAD_CAR        true
+#define LOAD_CAR        false
 #define LOAD_PITOTI     false
-#define LOAD_MOUNTAINS  true
+#define LOAD_MOUNTAINS  false
 
 #if OCULUS
 #include <OVR.h>
@@ -691,7 +690,7 @@ int main(int argc, char** argv) {
       res_pass->set_enable_for_right_eye(false);
       grid_pass->set_enable_for_right_eye(false);
       render_grid_pass->set_enable_for_right_eye(false);
-      
+
       update_transparency_mode();
       #if OCULUS
         fast_screen_left->set_transform(gua::math::mat4(scm::math::make_translation(-0.04f, 0.f, -0.05f)));
@@ -706,7 +705,7 @@ int main(int argc, char** argv) {
       slow_cam->set_pipeline_description(normal_pipe);
       slow_cam->config.set_enable_stereo(false);
       slow_cam->config.set_eye_dist(0.f);
-      
+
       update_transparency_mode();
       #if OCULUS
         slow_screen_left->set_transform(gua::math::mat4(scm::math::make_translation(0.f, 0.f, -0.05f)));
@@ -728,7 +727,7 @@ int main(int argc, char** argv) {
       res_pass->set_enable_for_right_eye(true);
       grid_pass->set_enable_for_right_eye(true);
       render_grid_pass->set_enable_for_right_eye(true);
-      
+
       update_transparency_mode();
       #if OCULUS
         fast_screen_left->set_transform(gua::math::mat4(scm::math::make_translation(-0.04f, 0.f, -0.05f)));
